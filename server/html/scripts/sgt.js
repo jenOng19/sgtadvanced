@@ -254,8 +254,8 @@ class SGT_template{
 		var ajaxConfig = {
 			dataType: 'json',
 			data:{"api_key": "FDTbESioTh"},
-			method: 'post',
-			url: 'http://s-apis.learningfuze.com/sgt/get',
+			method: 'get',
+			url: 'api/grades',
 			success: this.handleGetDataSuccess,
 			error: this.handleError
 		}
