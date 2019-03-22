@@ -2,42 +2,60 @@
 
 const express= require('express'); //load the express library into the file
 const mysql= require('mysql');
-const mysqlcredentials= require('./mysqlcreds.js');
+const mysqlcredentials= require('./mysqlcreds.js');//load the credentials from a local file for mysql
+
 
 // establish a connection to the database
+//using the credentials that we loaded, establish a preliminary connection to the database
 const db= mysql.createConnection(mysqlcredentials);
 
 const server= express();
 
-//use is a middle
+//use is a middleman
 // dirname is a variable that has a string inside of it
 // /html is a path ,__dirname means wherever you are and look there for any requests 
 // __dirname is your current working directory and looks for static files(does not change)
 //file won't change unless you manually change the code
 server.use(express.static( __dirname + '/html'))
+server.use(express.urlencoded({extended: false }))//have express pull body data that is urlencoded and place it into an object called 'body' (url encoded:key, value pairs)
 
 //  /api means nothing, can be named something else 
+// event when a connection is received at port 3001 at the url above call this function
+//make an endpoint to handle retrieving the grades of all students
 server.get('/api/grades', (req, res)=>{
-    res.send(`{
-        "success": true,
-        "data": [{
-            "id": 10,
-            "name": "Jennifer Ong",
-            "course": "Javascript",
-            "grade": 90
-        }, {
-            "id": 12,
-            "name": "Tiffany Ong",
-            "course": "Health Science",
-            "grade": 80
-        }, {
-            "id": 14,
-            "name": "Ryan Ong",
-            "course": "Engineering",
-            "grade": 100
-        }]
-    }`)
+    // takes a callback functions once it is made
+    //establish the connection to the database, and call the callback function when connection is made
+    db.connect( ()=> {
+        //create a query for our desired operation
+        const query = 'SELECT `id`, CONCAT (`givenname`, " ", `surname`)AS `name`, `course`, `grade` FROM `grades`'
+        //send query to the database, and call the given call back function once the data is retrieved
+        db.query(query, (error, data)=>{
+            //if error is null, no error occurred
+            //create an output object to be sent back to the client
+            const output={
+                success:false,
+            }
+            //if error is null, send the data
+            if(!error){
+                //notify the client that we were successful
+                output.success=true;
+                //attach the data from the database to the output object
+                output.data=data;
+            }else{
+                //an error occurred, attach that error onto the output so we can see what happened
+                output.error=error;
+            }
+            //send the data back to the client, in reality shouldn't send data back to the client 
+            res.send(output);
+        })
+    })
 })
+
+
+server.post('/api/grades', (request, response)=>{
+
+})
+
 
 // var insults=[
 //     'your father smelt of elderberries',
