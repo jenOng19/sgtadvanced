@@ -18,6 +18,8 @@ const server= express();
 //file won't change unless you manually change the code
 server.use(express.static( __dirname + '/html'))
 server.use(express.urlencoded({extended: false }))//have express pull body data that is urlencoded and place it into an object called 'body' (url encoded:key, value pairs)
+server.use(express.json())//used for things like axios
+
 
 //  /api means nothing, can be named something else 
 // event when a connection is received at port 3001 at the url above call this function
@@ -51,9 +53,41 @@ server.get('/api/grades', (req, res)=>{
     })
 })
 
+// INSERT INTO `grades` SET `surname` = "Ong", `givenname`= "Jennifer", `course`="math", `grade`=80
+// INSERT INTO `grades`(`surname`, `givenname`, `course`, `grade`) 
+//     VALUES ("Ong", "Jennifer", "math", 80), ("Lee","David","math",90)
 
 server.post('/api/grades', (request, response)=>{
-
+    // check the body object and see if any data was not sent
+    if(request.body.name===undefined || request.body.course===undefined || request.body.grade=== undefined){
+        // response to the client with an appropriate error message
+        response.send({
+            success: false,
+            error: 'invalid name, course, or grade'
+        });
+        // return nothing to the server
+        return;
+    }
+    // response.send(request.body);//body is from postman 
+    // connect to the database
+    db.connect(()=>{
+        const name= request.body.name.split(" "); //will give array of first name and last name, split based on space
+        const query= 'INSERT INTO `grades` SET `surname` = "'+name[1]+'", `givenname`= "'+name[0]+'", `course`="'+request.body.course+'", `grade`="'+request.body.grade+'", `added`=NOW()'
+        // console.log(query);
+        db.query(query, (error, result)=>{
+            if(!error){
+                response.send({
+                    success: true,
+                    new_id: result.insertId
+                })
+            }else{
+                response.send({
+                    success: false,
+                    error//es6 structuring allows to use error by itself instead of error: error
+                })
+            }
+        })
+    })
 })
 
 
