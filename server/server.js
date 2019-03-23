@@ -90,7 +90,36 @@ server.post('/api/grades', (request, response)=>{
     })
 })
 
+server.delete('/api/grades', (request, response)=>{
+    // console.log(request.query);
+    // query is all the data in the query string http://localhost:3001/api/grades?student_id=10 so student_id=10
+    // response.send(request.query); //closes the connection before the endpoint
+    if(request.query.student_id===undefined){
+        response.send({
+            success: false,
+            error: 'must provide a student id for delete'
+        });
+        return;
+    }
+    db.connect(()=>{
+        const query='DELETE FROM `grades` WHERE `id`= "' +request.query.student_id+'"';
 
+        db.query(query, (error, result)=>{
+            if(!error){
+                response.send({
+                    success:true,
+                })
+            }else{
+                response.send({
+                    success: false,
+                    error
+                })
+            }
+        })
+    })
+
+
+})
 // var insults=[
 //     'your father smelt of elderberries',
 //     'you program on an altaire',

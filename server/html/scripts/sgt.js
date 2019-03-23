@@ -286,7 +286,7 @@ class SGT_template{
 				"grade": grade
 			},
 			method: 'post',
-			url: 'http://s-apis.learningfuze.com/sgt/create',
+			url: 'api/grades',
 			success: this.handleCreateDataSuccess,
 			error: this.handleError
 		}
@@ -335,12 +335,12 @@ class SGT_template{
 	handleDeleteData(id, row){
 		var ajaxConfig = {
 			dataType: 'json',
-			data:{
-				"api_key": "FDTbESioTh",
-				"student_id": id
-			},
-			method: 'post',
-			url: 'http://s-apis.learningfuze.com/sgt/delete',
+			// data:{
+			// 	"api_key": "FDTbESioTh",
+			// 	"student_id": id
+			// },
+			method: 'delete',
+			url: '/api/grades?student_id=' +id,
 			success: this.handleDeleteDataSuccess,
 			// success: handleDeleteDataSuccess.bind(this),
 			error: this.handleError
